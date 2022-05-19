@@ -1,0 +1,42 @@
+{
+  "type": "module",
+  "name": "@dependable/state",
+  "version": "0.1.0",
+  "description": "Observables and computeds for state management",
+  "module": "./src/state.js",
+  "exports": {
+    ".": "./src/state.js"
+  },
+  "keywords": ["dependable", "observable", "computed", "state"],
+  "scripts": {
+    "test": "mocha",
+    "build": "rm -rf dist && rollup -c rollup.config.js",
+    "coverage": "c8 -r lcov -r text npm test",
+    "prepublishOnly": "yarn build"
+  },
+  "author": "Sune Simonsen",
+  "license": "MIT",
+  "bugs": "https://github.com/sunesimonsen/depository/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sunesimonsen/depository"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "devDependencies": {
+    "c8": "^7.11.3",
+    "fake-promise": "^2.5.44",
+    "mocha": "^10.0.0",
+    "prettier": "^2.6.2",
+    "rollup": "^2.27.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "sinon": "^14.0.0",
+    "terser": "^5.14.0",
+    "unexpected": "^13.0.0",
+    "unexpected-sinon": "^11.1.0"
+  }
+}
