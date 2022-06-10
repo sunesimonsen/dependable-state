@@ -1,5 +1,8 @@
 # @dependable/state
 
+[![Checks](https://github.com/sunesimonsen/dependable-state/workflows/Checks/badge.svg)](https://github.com/sunesimonsen/dependable-state/actions?query=workflow%3AChecks+branch%3Amain)
+[![Bundle Size](https://img.badgesize.io/https:/unpkg.com/@dependable/state/dist/dependable-state.esm.min.js?label=gzip&compression=gzip)](https://unpkg.com/@dependable/state/dist/dependable-state.esm.min.js)
+
 Observables and computeds for reactive state management.
 
 - Easy learning curve
