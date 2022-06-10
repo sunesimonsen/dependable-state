@@ -1,13 +1,18 @@
 {
   "type": "module",
   "name": "@dependable/state",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Observables and computeds for reactive state management",
   "module": "./src/state.js",
   "exports": {
     ".": "./src/state.js"
   },
-  "keywords": ["dependable", "observable", "computed", "state"],
+  "keywords": [
+    "dependable",
+    "observable",
+    "computed",
+    "state"
+  ],
   "scripts": {
     "test": "mocha",
     "format": "prettier --write '**/*.js'",
