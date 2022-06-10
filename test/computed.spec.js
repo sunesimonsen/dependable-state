@@ -36,11 +36,7 @@ describe("computed", () => {
         subscriptionSpy = sinon.spy();
         greeting.subscribe(subscriptionSpy);
 
-        const updateName = () => {
-          name("John Doe");
-        };
-
-        updateName();
+        name("John Doe");
 
         flush();
       });
@@ -53,6 +49,60 @@ describe("computed", () => {
         expect(subscriptionSpy, "to have calls satisfying", () => {
           subscriptionSpy();
         });
+      });
+    });
+
+    describe("and it's dependencies updates to the same value", () => {
+      let greeting, subscriptionSpy;
+
+      beforeEach(() => {
+        const name = observable("name", "Jane Doe");
+
+        greeting = computed("greeting", () => `Hello, ${name()}`);
+
+        subscriptionSpy = sinon.spy();
+        greeting.subscribe(subscriptionSpy);
+
+        name("Jane Doe");
+
+        flush();
+      });
+
+      it("returns the old value", () => {
+        expect(greeting(), "to equal", "Hello, Jane Doe");
+      });
+
+      it("doesn't call the subscribers", () => {
+        expect(subscriptionSpy, "was not called");
+      });
+    });
+
+    describe("and it's dependencies updates to the same value, according to the equal function", () => {
+      let greeting, subscriptionSpy;
+
+      beforeEach(() => {
+        const name = observable("name", "Jane Doe");
+
+        greeting = computed(
+          "greeting",
+          () => `Hello, ${name()}`,
+          (a, b) => a.toLowerCase() === b.toLowerCase()
+        );
+
+        subscriptionSpy = sinon.spy();
+        greeting.subscribe(subscriptionSpy);
+
+        name("Jane DOE");
+
+        flush();
+      });
+
+      it("returns the old value", () => {
+        expect(greeting(), "to equal", "Hello, Jane DOE");
+      });
+
+      it("doesn't call the subscribers", () => {
+        expect(subscriptionSpy, "was not called");
       });
     });
   });
@@ -78,35 +128,47 @@ describe("computed", () => {
 
       output = computed("output", outputSpy);
 
-      sumSubscriptionSpy = sinon.spy();
+      sumSubscriptionSpy = sinon.spy().named("sumSubscription");
       sum.subscribe(sumSubscriptionSpy);
 
-      outputSubscriptionSpy = sinon.spy();
+      outputSubscriptionSpy = sinon.spy().named("outputSubscription");
       output.subscribe(outputSubscriptionSpy);
     });
 
     describe("and the values is updated", () => {
       beforeEach(() => {
-        const updateValues = () => {
-          a(4);
-          b(2);
-        };
+        a(4);
+        b(2);
 
-        updateValues();
+        flush();
+
+        // Shouldn't trigger any updates
+        a(4);
+        b(2);
+
+        flush();
+
+        // Should only change the output
+        a(2);
+        b(4);
 
         flush();
       });
 
       it("calculated the computed value correctly", () => {
-        expect(output(), "to equal", "a: 4, b: 2, sum: 6, product: 8");
+        expect(output(), "to equal", "a: 2, b: 4, sum: 6, product: 8");
       });
 
-      it("calls the subscribers only once", () => {
+      it("calls the subscribers only once per change", () => {
         expect(
           [sumSubscriptionSpy, outputSubscriptionSpy],
           "to have calls satisfying",
           () => {
+            // When a=4 b=2
             sumSubscriptionSpy();
+            outputSubscriptionSpy();
+
+            // When a=2 b=4 only the output changes
             outputSubscriptionSpy();
           }
         );
@@ -124,7 +186,12 @@ describe("computed", () => {
             outputSpy();
             productSpy();
 
-            // when executing action
+            // When a=4 b=2
+            sumSpy();
+            productSpy();
+            outputSpy();
+
+            // When a=2 b=4
             sumSpy();
             productSpy();
             outputSpy();

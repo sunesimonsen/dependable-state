@@ -42,6 +42,40 @@ describe("observable", () => {
         subscriptionSpy();
       });
     });
+
+    it("doesn't notify if the value hasn't changed", () => {
+      const v = observable("v", "foo");
+
+      const subscriptionSpy = sinon.spy();
+      v.subscribe(subscriptionSpy);
+
+      v("foo");
+
+      flush();
+
+      expect(v(), "to equal", "foo");
+
+      expect(subscriptionSpy, "was not called");
+    });
+
+    it("doesn't notify if the value hasn't changed, according to the given equal function", () => {
+      const v = observable(
+        "v",
+        { id: 0, value: "foo" },
+        (a, b) => a.id === b.id
+      );
+
+      const subscriptionSpy = sinon.spy();
+      v.subscribe(subscriptionSpy);
+
+      v({ id: 0, value: "foo" });
+
+      flush();
+
+      expect(v(), "to equal", { id: 0, value: "foo" });
+
+      expect(subscriptionSpy, "was not called");
+    });
   });
 
   describe("unsubscribe", () => {

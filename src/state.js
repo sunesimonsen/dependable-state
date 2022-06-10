@@ -63,18 +63,31 @@ export const flush = () => {
 
   collectWork(updated, work);
 
-  for (const subscribable of work) {
-    if (subscribable._update) {
-      subscribable._update();
-    }
-  }
-
+  const potentialUpdates = new Set();
   const updates = new Set();
-  for (const subscribable of work) {
-    updates.add(subscribable);
 
-    for (const listener of subscribable._listeners) {
-      listeners.add(listener);
+  for (const subscribable of work) {
+    if (subscribable._dependencies) {
+      let updatedDependencies = false;
+
+      for (const dependency of subscribable._dependencies) {
+        if (dependency._hasChanged) {
+          updatedDependencies = true;
+          break;
+        }
+      }
+
+      if (updatedDependencies) {
+        subscribable._update();
+      }
+    }
+
+    if (subscribable._hasChanged) {
+      updates.add(subscribable);
+
+      for (const listener of subscribable._listeners) {
+        listeners.add(listener);
+      }
     }
   }
 
@@ -95,8 +108,9 @@ const registerUpdate = (fn) => {
   addFlushHook();
 };
 
-export const observable = (id, initialValue) => {
+export const observable = (id, initialValue, isEqual = Object.is) => {
   let value = initialValue;
+  let prevValue = initialValue;
 
   const fn = (...args) => {
     if (args.length === 0) {
@@ -106,15 +120,21 @@ export const observable = (id, initialValue) => {
 
       return value;
     } else {
+      prevValue = value;
       value = args[0];
+      fn._hasChanged = !isEqual(value, prevValue);
 
-      registerUpdate(fn);
+      if (fn._hasChanged) {
+        registerUpdate(fn);
+      }
     }
   };
 
   fn.id = id;
   fn._dependents = new Set();
   fn._listeners = new Set();
+  fn._hasChanged = false;
+  fn.isObservable = true;
 
   fn._registerDependent = (dependent) => {
     fn._dependents.add(dependent);
@@ -131,8 +151,6 @@ export const observable = (id, initialValue) => {
   fn.unsubscribe = (listener) => {
     fn._listeners.delete(listener);
   };
-
-  fn.isObservable = true;
 
   registerActive(fn);
 
@@ -155,10 +173,10 @@ const collectWork = (subscribables, work) => {
   }
 };
 
-export const computed = (id, cb) => {
+export const computed = (id, cb, isEqual = Object.is) => {
   const listeners = new Set();
   let value = null;
-  let dependencies = new Set();
+  let prevValue = null;
   let active = false;
 
   const fn = () => {
@@ -172,6 +190,7 @@ export const computed = (id, cb) => {
       fn._update();
       return value;
     } else {
+      prevValue = value;
       value = cb();
       return value;
     }
@@ -179,23 +198,31 @@ export const computed = (id, cb) => {
 
   fn.id = id;
   fn._dependents = new Set();
+  fn._dependencies = new Set();
   fn._listeners = new Set();
+  fn._hasChanged = false;
+  fn.isComputed = true;
 
   fn._update = () => {
     const parentDependencies = dependableState._dependencies;
     dependableState._dependencies = new Set();
+    prevValue = value;
     value = cb();
+    if (!active) {
+      prevValue = value;
+    }
+    fn._hasChanged = !isEqual(value, prevValue);
 
     const unsubscribed = new Set();
-    for (const dependency of dependencies) {
+    for (const dependency of fn._dependencies) {
       if (!dependableState._dependencies.has(dependency)) {
         unsubscribed.add(dependency);
       }
     }
 
-    dependencies = dependableState._dependencies;
+    fn._dependencies = dependableState._dependencies;
 
-    for (const dependency of dependencies) {
+    for (const dependency of fn._dependencies) {
       dependency._registerDependent(fn);
     }
 
@@ -209,20 +236,20 @@ export const computed = (id, cb) => {
   const updateActivation = () => {
     if (active) {
       if (fn._dependents.size === 0 && fn._listeners.size === 0) {
-        for (const dependency of dependencies) {
+        for (const dependency of fn._dependencies) {
           dependency._unregisterDependent(fn);
         }
 
-        dependencies = new Set();
+        fn._dependencies = new Set();
 
         active = false;
       }
     } else if (fn._dependents.size > 0 || fn._listeners.size > 0) {
-      active = true;
       if (!dependableState._dependencies) {
         // has been updated by dependency tracking
         fn._update();
       }
+      active = true;
     }
   };
 
@@ -245,8 +272,6 @@ export const computed = (id, cb) => {
     fn._listeners.delete(listener);
     updateActivation();
   };
-
-  fn.isComputed = true;
 
   registerActive(fn);
 

@@ -137,6 +137,62 @@ aboveLimit.subscribe(() => {
 });
 ```
 
+## Overriding equality comparison
+
+By default observables and computeds compare values for equality using the `Object.is` function. The library uses this function to figure out if an observable or computed has changed is value and therefore should notify isn't subscribers.
+
+In certain situations it is useful to override this comparison function, that can be done the following way.
+
+```js
+const name = observable(
+  "name",
+  "Jane Doe",
+  (a, b) => a.toLowerCase() === b.toLowerCase()
+);
+
+name.subscribe(() => {
+  console.log(name());
+});
+
+// This doesn't trigger the subscription
+name("JANE DOE");
+
+// but this does
+name("John Doe");
+```
+
+You can do the same for computeds like this.
+
+```js
+const stuff = observable("stuff", []);
+const stuffById = computed("stuffById", () => {
+  const result = new Map();
+  for (const thing of stuff) {
+    result.set(thing.id, thing);
+  }
+  return result;
+});
+
+const stuffWithId = (id) =>
+  computed(
+    `stuff.${id}`,
+    () => stuff().find((item) => item.id === id),
+    (a, b) => a.id === b.id
+  );
+
+const foo = stuffWithId("foo");
+
+foo.subscribe(() => {
+  console.log(foo);
+});
+
+// trigger an update to foo
+stuff([{ id: "foo" }]);
+
+// doesn't trigger another update to foo
+stuff([{ id: "foo" }, { id: "bar" }]);
+```
+
 ## Testing
 
 `@dependable/state` is build with testing in mind from the beginning. The idea is that you update the observables to the necessary state in the test setup, do some interaction and test the updated state.
