@@ -2,7 +2,7 @@
   "type": "module",
   "name": "@dependable/state",
   "version": "0.1.0",
-  "description": "Observables and computeds for state management",
+  "description": "Observables and computeds for reactive state management",
   "module": "./src/state.js",
   "exports": {
     ".": "./src/state.js"
