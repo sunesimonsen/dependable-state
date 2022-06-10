@@ -10,6 +10,8 @@
   "keywords": ["dependable", "observable", "computed", "state"],
   "scripts": {
     "test": "mocha",
+    "format": "prettier --write '**/*.js'",
+    "lint": "prettier --check '**/*.js' && eslint .",
     "build": "rm -rf dist && rollup -c rollup.config.js",
     "coverage": "c8 -r lcov -r text npm test",
     "prepublishOnly": "yarn build"
@@ -25,10 +27,13 @@
     "access": "public"
   },
   "engines": {
-    "node": ">=12"
+    "node": ">=14"
   },
   "devDependencies": {
     "c8": "^7.11.3",
+    "eslint": "^8.17.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "fake-promise": "^2.5.44",
     "mocha": "^10.0.0",
     "prettier": "^2.6.2",
