@@ -33,13 +33,13 @@ import { observable, computed } from "@dependable/state";
 
 Then we can declare an observable for our todos.
 
-All of our todos and computeds needs to be uniquely named, to support debugging and enabling development tools.
+All of our observables and computeds needs to be uniquely named, to support debugging and enabling development tools.
 
 ```js
 const todos = observable("todos", []);
 ```
 
-We will be putting todos inside fo the `todos` observable, so let's define a class for todos.
+We will be putting todos inside of the `todos` observable, so let's define a class for a todo.
 
 As you can see, we defined `title` and `completed` as observables, as those fields are allowed to be updated.
 
