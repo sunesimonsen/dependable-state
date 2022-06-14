@@ -188,9 +188,13 @@ stuff([{ id: "foo" }, { id: "bar" }]);
 
 ## Testing
 
-`@dependable/state` is build with testing in mind from the beginning. The idea is that you update the observables to the necessary state in the test setup, do some interaction and test the updated state.
+`@dependable/state` is build with testing in mind from the beginning. The idea
+is that you update the observables to the necessary state in the test setup, do
+some interaction and test the updated state.
 
-We provide a `flush` method, for synchronously notifying any listeners, when you need to make sure that derived state is updated.
+We provide a `flush` method, for synchronously updating the computeds and
+notifying any listeners, when you need to make sure that derived state is
+updated.
 
 ```js
 import { flush } from "@dependable/state";
@@ -204,9 +208,11 @@ sum.subscribe(() => {
 });
 
 numbers([1, 2, 3]);
+
 // subscribes will be called in the next tick, but we can force the update through
 flush();
 
+expect(sum(), "to equal", 6);
 expect(notified, "to be true");
 ```
 
