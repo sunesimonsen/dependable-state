@@ -26,7 +26,9 @@ export const subscribables = () => {
 };
 
 const registerActive = (fn) => {
-  dependableState._references.set(fn.id, new WeakRef(fn));
+  if (fn.id) {
+    dependableState._references.set(fn.id, new WeakRef(fn));
+  }
 
   notifyStateListeners(new Set([fn]));
 };
@@ -108,7 +110,7 @@ const registerUpdate = (fn) => {
   addFlushHook();
 };
 
-export const observable = (id, initialValue, isEqual = Object.is) => {
+export const observable = (initialValue, { id, isEqual = Object.is } = {}) => {
   let value = initialValue;
   let prevValue = initialValue;
 
@@ -173,7 +175,7 @@ const collectWork = (subscribables, work) => {
   }
 };
 
-export const computed = (id, cb, isEqual = Object.is) => {
+export const computed = (cb, { id, isEqual = Object.is } = {}) => {
   const listeners = new Set();
   let value = null;
   let prevValue = null;

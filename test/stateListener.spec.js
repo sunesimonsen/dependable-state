@@ -1,5 +1,6 @@
 import unexpected from "unexpected";
 import unexpectedSinon from "unexpected-sinon";
+import unexpectedDependable from "./unexpected-dependable.js";
 import sinon from "sinon";
 import { FakePromise } from "fake-promise";
 import {
@@ -10,7 +11,10 @@ import {
   subscribables,
 } from "../src/state.js";
 
-const expect = unexpected.clone().use(unexpectedSinon);
+const expect = unexpected
+  .clone()
+  .use(unexpectedSinon)
+  .use(unexpectedDependable);
 
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -20,10 +24,12 @@ describe("stateListener", () => {
     // Make sure other tests doesn't have registered references
     global.__dependable._references = new Map();
 
-    firstName = observable("firstName", "John");
-    lastName = observable("lastName", "Doe");
+    firstName = observable("John", { id: "firstName" });
+    lastName = observable("Doe", { id: "lastName" });
 
-    fullName = computed("fullName", () => `${firstName()} ${lastName()}`);
+    fullName = computed(() => `${firstName()} ${lastName()}`, {
+      id: "fullName",
+    });
   });
 
   describe("subscribables", () => {
@@ -63,7 +69,7 @@ describe("stateListener", () => {
       let newObservable;
 
       beforeEach(() => {
-        newObservable = observable("new", "this is new");
+        newObservable = observable("this is new", { id: "new" });
       });
 
       it("will be included in the working set", () => {

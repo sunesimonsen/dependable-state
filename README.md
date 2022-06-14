@@ -33,17 +33,13 @@ import { observable, computed } from "@dependable/state";
 
 Then we can declare an observable for our todos.
 
-All of our observables and computeds needs to be uniquely named, to support debugging and enabling development tools.
-
 ```js
-const todos = observable("todos", []);
+const todos = observable([]);
 ```
 
 We will be putting todos inside of the `todos` observable, so let's define a class for a todo.
 
 As you can see, we defined `title` and `completed` as observables, as those fields are allowed to be updated.
-
-We give each todo a unique id and use that to produce a unique key for the observables.
 
 ```js
 let nextId = 0;
@@ -52,8 +48,8 @@ class Todo {
   constructor(title) {
     this.id = nextId++;
     const key = `todo.${this.id}`;
-    this.title = observable(`${key}.title`, title);
-    this.completed = observable(`${key}.completed`, false);
+    this.title = observable(title);
+    this.completed = observable(false);
   }
 }
 ```
@@ -69,15 +65,13 @@ const compareByTitle = (a, b) => {
   return 0;
 };
 
-const sortedTodos = computed("sortedTodos", () =>
-  todos().slice().sort(compareByTitle)
-);
+const sortedTodos = computed(() => todos().slice().sort(compareByTitle));
 ```
 
 Then we can create another todo, that filters out any completed todos.
 
 ```js
-const activeTodos = computed("activeTodos", () =>
+const activeTodos = computed(() =>
   sortedTodos().filter((todo) => !todo.completed())
 );
 ```
@@ -130,8 +124,8 @@ As you can see it is very easy to build something that is quite powerful.
 You can subscribe to both observables and computeds. Updates will be batched and each listener will only be called once for each batch. Listeners will only be called if the value we updated.
 
 ```js
-const message = observable("message", "");
-const aboveLimit = computed("aboveLimit", () => message().length > 140);
+const message = observable("");
+const aboveLimit = computed(() => message().length > 140);
 
 aboveLimit.subscribe(() => {
   if (aboveLimit()) {
@@ -147,11 +141,9 @@ By default observables and computeds compare values for equality using the `Obje
 In certain situations it is useful to override this comparison function, that can be done the following way.
 
 ```js
-const name = observable(
-  "name",
-  "Jane Doe",
-  (a, b) => a.toLowerCase() === b.toLowerCase()
-);
+const name = observable("Jane Doe", {
+  isEqual: (a, b) => a.toLowerCase() === b.toLowerCase(),
+});
 
 name.subscribe(() => {
   console.log(name());
@@ -167,8 +159,8 @@ name("John Doe");
 You can do the same for computeds like this.
 
 ```js
-const stuff = observable("stuff", []);
-const stuffById = computed("stuffById", () => {
+const stuff = observable([]);
+const stuffById = computed(() => {
   const result = new Map();
   for (const thing of stuff) {
     result.set(thing.id, thing);
@@ -205,8 +197,8 @@ We provide a `flush` method, for synchronously notifying any listeners, when you
 ```js
 import { flush } from "@dependable/state";
 
-const numbers = observable("numbers", []);
-const sum = computed("sum", () => numbers.reduce((sum, v) => sum + v, 0));
+const numbers = observable([]);
+const sum = computed(() => numbers.reduce((sum, v) => sum + v, 0));
 
 let notified = false;
 sum.subscribe(() => {

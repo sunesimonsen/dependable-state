@@ -10,11 +10,15 @@ export default {
       unwrap: function (observable) {
         return observable();
       },
-      prefix: function (output, value) {
-        return output.code("observable('").jsString(value.id).code("', ");
+      prefix: function (output) {
+        return output.code("observable(");
       },
-      suffix: function (output) {
-        return output.code(")");
+      suffix: function (output, value) {
+        if (value.id) {
+          output.code(", { id: '").jsString(value.id).code("' }");
+        }
+        output.code(")");
+        return output;
       },
     });
 
@@ -25,7 +29,7 @@ export default {
         return value && value.isComputed;
       },
       prefix: function (output, value) {
-        return output.code("computed('").jsString(value.id).code("', ");
+        return output.code("computed(");
       },
     });
   },

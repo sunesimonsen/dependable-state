@@ -1,24 +1,28 @@
 import unexpected from "unexpected";
 import unexpectedSinon from "unexpected-sinon";
+import unexpectedDependable from "./unexpected-dependable.js";
 import sinon from "sinon";
 import { observable, computed, flush } from "../src/state.js";
 
-const expect = unexpected.clone().use(unexpectedSinon);
+const expect = unexpected
+  .clone()
+  .use(unexpectedSinon)
+  .use(unexpectedDependable);
 
 describe("computed", () => {
   it("creates a computed", () => {
-    const name = observable("name", "Jane Doe");
+    const name = observable("Jane Doe");
 
-    const greeting = computed("greeting", () => `Hello, ${name()}`);
+    const greeting = computed(() => `Hello, ${name()}`);
 
     expect(greeting.isComputed, "to be true");
   });
 
   describe("when not subscribed", () => {
     it("the value is still readable", () => {
-      const name = observable("name", "Jane Doe");
+      const name = observable("Jane Doe");
 
-      const greeting = computed("greeting", () => `Hello, ${name()}`);
+      const greeting = computed(() => `Hello, ${name()}`);
 
       expect(greeting(), "to equal", "Hello, Jane Doe");
     });
@@ -29,9 +33,9 @@ describe("computed", () => {
       let greeting, subscriptionSpy;
 
       beforeEach(() => {
-        const name = observable("name", "Jane Doe");
+        const name = observable("Jane Doe");
 
-        greeting = computed("greeting", () => `Hello, ${name()}`);
+        greeting = computed(() => `Hello, ${name()}`);
 
         subscriptionSpy = sinon.spy();
         greeting.subscribe(subscriptionSpy);
@@ -56,9 +60,9 @@ describe("computed", () => {
       let greeting, subscriptionSpy;
 
       beforeEach(() => {
-        const name = observable("name", "Jane Doe");
+        const name = observable("Jane Doe");
 
-        greeting = computed("greeting", () => `Hello, ${name()}`);
+        greeting = computed(() => `Hello, ${name()}`);
 
         subscriptionSpy = sinon.spy();
         greeting.subscribe(subscriptionSpy);
@@ -81,13 +85,11 @@ describe("computed", () => {
       let greeting, subscriptionSpy;
 
       beforeEach(() => {
-        const name = observable("name", "Jane Doe");
+        const name = observable("Jane Doe");
 
-        greeting = computed(
-          "greeting",
-          () => `Hello, ${name()}`,
-          (a, b) => a.toLowerCase() === b.toLowerCase()
-        );
+        greeting = computed(() => `Hello, ${name()}`, {
+          isEqual: (a, b) => a.toLowerCase() === b.toLowerCase(),
+        });
 
         subscriptionSpy = sinon.spy();
         greeting.subscribe(subscriptionSpy);
@@ -114,19 +116,19 @@ describe("computed", () => {
     let a, b;
 
     beforeEach(() => {
-      a = observable("a", 0);
-      b = observable("b", 0);
+      a = observable(0);
+      b = observable(0);
 
       sumSpy = sinon.spy(() => a() + b()).named("sum");
-      const sum = computed("sum", sumSpy);
+      const sum = computed(sumSpy);
       productSpy = sinon.spy(() => a() * b()).named("product");
-      const product = computed("product", productSpy);
+      const product = computed(productSpy);
 
       outputSpy = sinon
         .spy(() => `a: ${a()}, b: ${b()}, sum: ${sum()}, product: ${product()}`)
         .named("output");
 
-      output = computed("output", outputSpy);
+      output = computed(outputSpy);
 
       sumSubscriptionSpy = sinon.spy().named("sumSubscription");
       sum.subscribe(sumSubscriptionSpy);
@@ -232,12 +234,12 @@ describe("computed", () => {
     let computedSpy;
 
     beforeEach(() => {
-      choice = observable("choice", "a");
-      a = observable("a", "a");
-      b = observable("b", "b");
-      c = observable("c", "c");
+      choice = observable("a");
+      a = observable("a");
+      b = observable("b");
+      c = observable("c");
 
-      conditional = computed("conditional", () => {
+      conditional = computed(() => {
         switch (choice()) {
           case "a":
             return a();
