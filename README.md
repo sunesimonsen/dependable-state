@@ -169,11 +169,9 @@ const stuffById = computed(() => {
 });
 
 const stuffWithId = (id) =>
-  computed(
-    `stuff.${id}`,
-    () => stuff().find((item) => item.id === id),
-    (a, b) => a.id === b.id
-  );
+  computed(() => stuff().find((item) => item.id === id), {
+    isEqual: (a, b) => a.id === b.id,
+  });
 
 const foo = stuffWithId("foo");
 
