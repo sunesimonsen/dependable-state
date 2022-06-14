@@ -4,7 +4,7 @@ import unexpectedDependable from "./unexpected-dependable.js";
 
 const expect = unexpected.clone().use(unexpectedDependable);
 
-const todos = observable("todos", []);
+const todos = observable([]);
 
 let nextId = 0;
 
@@ -12,8 +12,8 @@ class Todo {
   constructor(title) {
     this.id = nextId++;
     const key = `todo.${this.id}`;
-    this.title = observable(`${key}.title`, title);
-    this.completed = observable(`${key}.completed`, false);
+    this.title = observable(title);
+    this.completed = observable(false);
   }
 }
 
@@ -33,11 +33,9 @@ const compareByTitle = (a, b) => {
   return 0;
 };
 
-const sortedTodos = computed("sortedTodos", () =>
-  todos().slice().sort(compareByTitle)
-);
+const sortedTodos = computed(() => todos().slice().sort(compareByTitle));
 
-const activeTodos = computed("activeTodos", () =>
+const activeTodos = computed(() =>
   sortedTodos().filter((todo) => !todo.completed())
 );
 

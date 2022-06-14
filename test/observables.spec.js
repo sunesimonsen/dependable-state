@@ -1,23 +1,27 @@
 import unexpected from "unexpected";
 import unexpectedSinon from "unexpected-sinon";
+import unexpectedDependable from "./unexpected-dependable.js";
 import sinon from "sinon";
 import { observable, flush } from "../src/state.js";
 import { FakePromise } from "fake-promise";
 
-const expect = unexpected.clone().use(unexpectedSinon);
+const expect = unexpected
+  .clone()
+  .use(unexpectedSinon)
+  .use(unexpectedDependable);
 
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 
 describe("observable", () => {
   it("returns the initial value when it hasn't been updated", () => {
-    const v = observable("v", "foo");
+    const v = observable("foo");
 
     expect(v(), "to equal", "foo");
   });
 
   describe("when updating the value", () => {
     it("updates the value", () => {
-      const v = observable("v", "foo");
+      const v = observable("foo");
 
       v("bar");
 
@@ -27,7 +31,7 @@ describe("observable", () => {
 
   describe("subscribe", () => {
     it("notifies it's subscribers on updates", () => {
-      const v = observable("v", "foo");
+      const v = observable("foo");
 
       const subscriptionSpy = sinon.spy();
       v.subscribe(subscriptionSpy);
@@ -44,7 +48,7 @@ describe("observable", () => {
     });
 
     it("doesn't notify if the value hasn't changed", () => {
-      const v = observable("v", "foo");
+      const v = observable("foo");
 
       const subscriptionSpy = sinon.spy();
       v.subscribe(subscriptionSpy);
@@ -60,9 +64,8 @@ describe("observable", () => {
 
     it("doesn't notify if the value hasn't changed, according to the given equal function", () => {
       const v = observable(
-        "v",
         { id: 0, value: "foo" },
-        (a, b) => a.id === b.id
+        { isEqual: (a, b) => a.id === b.id }
       );
 
       const subscriptionSpy = sinon.spy();
@@ -80,7 +83,7 @@ describe("observable", () => {
 
   describe("unsubscribe", () => {
     it("doesn't notify on updates", () => {
-      const v = observable("v", "foo");
+      const v = observable("foo");
 
       const subscriptionSpy = sinon.spy();
 
@@ -99,8 +102,8 @@ describe("observable", () => {
 
   describe("when updating multiple observables", () => {
     it("only notifies each subscriber once", () => {
-      const v1 = observable("v1", "v1");
-      const v2 = observable("v2", "v2");
+      const v1 = observable("v1");
+      const v2 = observable("v2");
 
       const subscriptionSpy = sinon.spy();
       v1.subscribe(subscriptionSpy);
@@ -121,8 +124,8 @@ describe("observable", () => {
 
     describe("with async updates", () => {
       it("submit updates in batches", async () => {
-        const v1 = observable("v1", "v1");
-        const v2 = observable("v2", "v2");
+        const v1 = observable("v1");
+        const v2 = observable("v2");
 
         const subscriptionSpy = sinon.spy();
         v1.subscribe(subscriptionSpy);
