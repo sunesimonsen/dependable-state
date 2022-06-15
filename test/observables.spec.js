@@ -47,6 +47,37 @@ describe("observable", () => {
       });
     });
 
+    describe("when the subscribe makes a new update", () => {
+      it("is excuted in the same batch", () => {
+        const foo = observable("foo");
+        const bar = observable("bar");
+        const qux = observable("qux");
+
+        foo.subscribe(() => {
+          bar(foo());
+        });
+
+        bar.subscribe(() => {
+          qux(bar());
+        });
+
+        const subscriptionSpy = sinon.spy();
+        qux.subscribe(subscriptionSpy);
+
+        foo("updated");
+
+        flush();
+
+        expect(foo(), "to equal", "updated");
+        expect(bar(), "to equal", "updated");
+        expect(qux(), "to equal", "updated");
+
+        expect(subscriptionSpy, "to have calls satisfying", () => {
+          subscriptionSpy();
+        });
+      });
+    });
+
     it("doesn't notify if the value hasn't changed", () => {
       const v = observable("foo");
 

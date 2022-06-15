@@ -93,15 +93,20 @@ export const flush = () => {
     }
   }
 
+  dependableState._updated.clear();
+
   for (const listener of listeners) {
     listener();
   }
 
   notifyStateListeners(updates);
 
-  dependableState._updated.clear();
-
   clearFlushHook();
+
+  if (dependableState._updated.size > 0) {
+    // subscriptions made new updates
+    flush();
+  }
 };
 
 const registerUpdate = (fn) => {
