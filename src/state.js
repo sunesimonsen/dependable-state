@@ -4,14 +4,29 @@ dependableState._updated = new Set();
 dependableState._references = new Map();
 dependableState._listeners = new Set();
 
+/**
+ * Add a state listener.
+ *
+ * @param {import('./shared').StateListener} listener the listner to be added.
+ */
 export const addStateListener = (listener) => {
   dependableState._listeners.add(listener);
 };
 
+/**
+ * Remove a state listener.
+ *
+ * @param {import('./shared').StateListener} listener the listner to be removed.
+ */
 export const removeStateListener = (listener) => {
   dependableState._listeners.delete(listener);
 };
 
+/**
+ * Return all active subscribables
+ *
+ * @returns {import('./shared').Subscribables} subscribables
+ */
 export const subscribables = () => {
   const subscribables = new Set();
 
@@ -56,10 +71,13 @@ const notifyStateListeners = (updates) => {
   }
 };
 
+/**
+ * Flushes all changes to computeds and calling all subscribers.
+ */
 export const flush = () => {
   const updated = dependableState._updated;
 
-  const listeners = new Set();
+  const subscribers = new Set();
 
   const work = new Set();
 
@@ -87,16 +105,16 @@ export const flush = () => {
     if (subscribable._hasChanged) {
       updates.add(subscribable);
 
-      for (const listener of subscribable._listeners) {
-        listeners.add(listener);
+      for (const subscriber of subscribable._subscribers) {
+        subscribers.add(subscriber);
       }
     }
   }
 
   dependableState._updated.clear();
 
-  for (const listener of listeners) {
-    listener();
+  for (const subscriber of subscribers) {
+    subscriber();
   }
 
   notifyStateListeners(updates);
@@ -115,7 +133,16 @@ const registerUpdate = (fn) => {
   addFlushHook();
 };
 
-export const observable = (initialValue, { id, isEqual = Object.is } = {}) => {
+/**
+ * Creating a new observable with the given initial value.
+ *
+ * @template T
+ * @param {T} initialValue Initial value
+ * @param {import('./shared').SubscribableOptions<T>} options Subscribable options
+ * @returns {import('./shared').Observable<T>} Observable
+ */
+export const observable = (initialValue, options = {}) => {
+  const { id, isEqual = Object.is } = options;
   let value = initialValue;
   let prevValue = initialValue;
 
@@ -138,10 +165,10 @@ export const observable = (initialValue, { id, isEqual = Object.is } = {}) => {
   };
 
   fn.id = id;
+  fn.kind = "observable";
   fn._dependents = new Set();
-  fn._listeners = new Set();
+  fn._subscribers = new Set();
   fn._hasChanged = false;
-  fn.isObservable = true;
 
   fn._registerDependent = (dependent) => {
     fn._dependents.add(dependent);
@@ -151,12 +178,12 @@ export const observable = (initialValue, { id, isEqual = Object.is } = {}) => {
     fn._dependents.delete(dependent);
   };
 
-  fn.subscribe = (listener) => {
-    fn._listeners.add(listener);
+  fn.subscribe = (subscriber) => {
+    fn._subscribers.add(subscriber);
   };
 
-  fn.unsubscribe = (listener) => {
-    fn._listeners.delete(listener);
+  fn.unsubscribe = (subscriber) => {
+    fn._subscribers.delete(subscriber);
   };
 
   registerActive(fn);
@@ -180,8 +207,17 @@ const collectWork = (subscribables, work) => {
   }
 };
 
-export const computed = (cb, { id, isEqual = Object.is } = {}) => {
-  const listeners = new Set();
+/**
+ * Creating a new computed based on the given callback function.
+ *
+ * @template T
+ * @param {() => T} cb Function that produces the computed result
+ * @param {import('./shared').SubscribableOptions<T>} options Subscribable options
+ * @returns {import('./shared').Computed<T>} Computed
+ */
+export const computed = (cb, options = {}) => {
+  const { id, isEqual = Object.is } = options;
+  const subscribers = new Set();
   let value = null;
   let prevValue = null;
   let active = false;
@@ -204,11 +240,11 @@ export const computed = (cb, { id, isEqual = Object.is } = {}) => {
   };
 
   fn.id = id;
+  fn.kind = "computed";
   fn._dependents = new Set();
   fn._dependencies = new Set();
-  fn._listeners = new Set();
+  fn._subscribers = new Set();
   fn._hasChanged = false;
-  fn.isComputed = true;
 
   fn._update = () => {
     const parentDependencies = dependableState._dependencies;
@@ -242,7 +278,7 @@ export const computed = (cb, { id, isEqual = Object.is } = {}) => {
 
   const updateActivation = () => {
     if (active) {
-      if (fn._dependents.size === 0 && fn._listeners.size === 0) {
+      if (fn._dependents.size === 0 && fn._subscribers.size === 0) {
         for (const dependency of fn._dependencies) {
           dependency._unregisterDependent(fn);
         }
@@ -251,7 +287,7 @@ export const computed = (cb, { id, isEqual = Object.is } = {}) => {
 
         active = false;
       }
-    } else if (fn._dependents.size > 0 || fn._listeners.size > 0) {
+    } else if (fn._dependents.size > 0 || fn._subscribers.size > 0) {
       if (!dependableState._dependencies) {
         // has been updated by dependency tracking
         fn._update();
@@ -270,13 +306,13 @@ export const computed = (cb, { id, isEqual = Object.is } = {}) => {
     updateActivation();
   };
 
-  fn.subscribe = (listener) => {
-    fn._listeners.add(listener);
+  fn.subscribe = (subscriber) => {
+    fn._subscribers.add(subscriber);
     updateActivation();
   };
 
-  fn.unsubscribe = (listener) => {
-    fn._listeners.delete(listener);
+  fn.unsubscribe = (subscriber) => {
+    fn._subscribers.delete(subscriber);
     updateActivation();
   };
 

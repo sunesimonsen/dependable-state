@@ -2,16 +2,16 @@ export default {
   name: "unexpected-dependable",
   installInto: function (expect) {
     expect.addType({
-      name: "dependable-observable",
+      name: "dependable-subscribable",
       base: "wrapperObject",
       identify: function (value) {
-        return value && value.isObservable;
+        return value && ["observable", "computed"].includes(value.kind);
       },
-      unwrap: function (observable) {
-        return observable();
+      unwrap: function (subscribable) {
+        return subscribable();
       },
-      prefix: function (output) {
-        return output.code("observable(");
+      prefix: function (output, value) {
+        return output.code(value.kind).code("(");
       },
       suffix: function (output, value) {
         if (value.id) {
@@ -19,17 +19,6 @@ export default {
         }
         output.code(")");
         return output;
-      },
-    });
-
-    expect.addType({
-      name: "dependable-computed",
-      base: "dependable-observable",
-      identify: function (value) {
-        return value && value.isComputed;
-      },
-      prefix: function (output, value) {
-        return output.code("computed(");
       },
     });
   },

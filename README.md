@@ -3,13 +3,16 @@
 [![Checks](https://github.com/sunesimonsen/dependable-state/workflows/CI/badge.svg)](https://github.com/sunesimonsen/dependable-state/actions?query=workflow%3ACI+branch%3Amain)
 [![Bundle Size](https://img.badgesize.io/https:/unpkg.com/@dependable/state/dist/dependable-state.esm.min.js?label=gzip&compression=gzip)](https://unpkg.com/@dependable/state/dist/dependable-state.esm.min.js)
 
-Observables and computeds for reactive state management.
+Observables and computeds for reactive state management
 
 - Easy learning curve
 - Tiny, less than 1kb
 - Zero dependencies
 - Allows multiple versions of the library in the page
 - Batches updates
+- TypeScript support
+
+[API documentation](https://dependable-state-api.surge.sh/modules/state.html)
 
 ## Install
 
