@@ -8,16 +8,8 @@
     ".": "./src/state.js"
   },
   "types": "./types/state.d.ts",
-  "files": [
-    "dist",
-    "src"
-  ],
-  "keywords": [
-    "dependable",
-    "observable",
-    "computed",
-    "state"
-  ],
+  "files": ["dist", "src", "types"],
+  "keywords": ["dependable", "observable", "computed", "state"],
   "scripts": {
     "test": "mocha",
     "format": "prettier --write '**/*.js'",
