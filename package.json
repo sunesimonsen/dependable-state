@@ -8,24 +8,15 @@
     ".": "./src/state.js"
   },
   "types": "./types/state.d.ts",
-  "files": [
-    "dist",
-    "src",
-    "types"
-  ],
-  "keywords": [
-    "dependable",
-    "observable",
-    "computed",
-    "state"
-  ],
+  "files": ["dist", "src", "types"],
+  "keywords": ["dependable", "observable", "computed", "state"],
   "scripts": {
     "test": "mocha",
     "format": "prettier --write '**/*.js'",
     "lint": "prettier --check '**/*.js' && eslint .",
-    "build": "rm -rf dist && rollup -c rollup.config.js",
-    "coverage": "c8 -r lcov -r text npm test",
     "types": "tsc && cp ./src/shared.d.ts ./types",
+    "build": "rm -rf dist types && npm run types && rollup -c rollup.config.js",
+    "coverage": "c8 -r lcov -r text npm test",
     "api-docs": "npm run types && typedoc --out api-docs --hideLegend --hideGenerator src/shared.d.ts src/state.js",
     "publish-docs": "npm run api-docs && surge api-docs dependable-state-api.surge.sh",
     "prepublishOnly": "yarn build"
