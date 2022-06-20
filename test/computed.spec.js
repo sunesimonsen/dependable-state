@@ -15,7 +15,7 @@ describe("computed", () => {
 
     const greeting = computed(() => `Hello, ${name()}`);
 
-    expect(greeting.isComputed, "to be true");
+    expect(greeting.kind, "to be", "computed");
   });
 
   describe("when not subscribed", () => {

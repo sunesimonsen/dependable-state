@@ -17,6 +17,7 @@ describe("observable", () => {
     const v = observable("foo");
 
     expect(v(), "to equal", "foo");
+    expect(v.kind, "to be", "observable");
   });
 
   describe("when updating the value", () => {

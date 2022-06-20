@@ -7,6 +7,7 @@
   "exports": {
     ".": "./src/state.js"
   },
+  "types": "./types/state.d.ts",
   "files": [
     "dist",
     "src"
@@ -23,6 +24,9 @@
     "lint": "prettier --check '**/*.js' && eslint .",
     "build": "rm -rf dist && rollup -c rollup.config.js",
     "coverage": "c8 -r lcov -r text npm test",
+    "types": "tsc",
+    "api-docs": "npm run types && typedoc --out api-docs --hideLegend --hideGenerator src/shared.d.ts src/state.js",
+    "publish-docs": "npm run api-docs && surge api-docs dependable-state-api.surge.sh",
     "prepublishOnly": "yarn build"
   },
   "author": "Sune Simonsen",
@@ -49,7 +53,10 @@
     "rollup": "^2.27.1",
     "rollup-plugin-terser": "^7.0.2",
     "sinon": "^14.0.0",
+    "surge": "^0.23.1",
     "terser": "^5.14.0",
+    "typedoc": "^0.22.17",
+    "typescript": "^4.7.3",
     "unexpected": "^13.0.0",
     "unexpected-sinon": "^11.1.0"
   }
