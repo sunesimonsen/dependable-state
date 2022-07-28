@@ -304,4 +304,29 @@ describe("computed", () => {
       });
     });
   });
+
+  it("only updates when value changes", () => {
+    const a = observable(0);
+    const b = observable(0);
+    const c = computed(() => b() % 2);
+    const d = computed(() => `a:${a()}, c:${c()}`);
+
+    const computedSpy = sinon.spy();
+    d.subscribe(computedSpy);
+
+    a(1);
+    b(2);
+
+    flush();
+
+    b(4);
+
+    flush();
+
+    expect(d(), "to equal", "a:1, c:0");
+
+    expect(computedSpy, "to have calls satisfying", () => {
+      computedSpy();
+    });
+  });
 });
