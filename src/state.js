@@ -207,6 +207,15 @@ const collectWork = (subscribables, work) => {
   }
 };
 
+export const track = (cb) => {
+  const parentDependencies = dependableState._dependencies;
+  const capturedDependencies = new Set();
+  dependableState._dependencies = capturedDependencies;
+  cb();
+  dependableState._dependencies = parentDependencies;
+  return capturedDependencies;
+};
+
 /**
  * Creating a new computed based on the given callback function.
  *
@@ -247,23 +256,25 @@ export const computed = (cb, options = {}) => {
   fn._hasChanged = false;
 
   fn._update = () => {
-    const parentDependencies = dependableState._dependencies;
-    dependableState._dependencies = new Set();
     prevValue = value;
-    value = cb();
+    const capturedDependencies = track(() => {
+      value = cb();
+    });
+
+    const previousDependencies = fn._dependencies;
+    fn._dependencies = capturedDependencies;
+
     if (!active) {
       prevValue = value;
     }
     fn._hasChanged = !isEqual(value, prevValue);
 
     const unsubscribed = new Set();
-    for (const dependency of fn._dependencies) {
-      if (!dependableState._dependencies.has(dependency)) {
+    for (const dependency of previousDependencies) {
+      if (!capturedDependencies.has(dependency)) {
         unsubscribed.add(dependency);
       }
     }
-
-    fn._dependencies = dependableState._dependencies;
 
     for (const dependency of fn._dependencies) {
       dependency._registerDependent(fn);
@@ -272,8 +283,6 @@ export const computed = (cb, options = {}) => {
     for (const dependency of unsubscribed) {
       dependency._unregisterDependent(fn);
     }
-
-    dependableState._dependencies = parentDependencies;
   };
 
   const updateActivation = () => {
@@ -287,11 +296,10 @@ export const computed = (cb, options = {}) => {
 
         active = false;
       }
-    } else if (fn._dependents.size > 0 || fn._subscribers.size > 0) {
-      if (!dependableState._dependencies) {
-        // has been updated by dependency tracking
-        fn._update();
-      }
+    } else if (fn._dependents.size > 0) {
+      active = true;
+    } else if (fn._subscribers.size > 0) {
+      fn._update();
       active = true;
     }
   };
