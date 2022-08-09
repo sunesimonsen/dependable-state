@@ -4,6 +4,8 @@ dependableState._updated = new Set();
 dependableState._references = new Map();
 dependableState._listeners = new Set();
 
+const defaultPriority = 0;
+
 /**
  * Add a state listener.
  *
@@ -77,7 +79,7 @@ const notifyStateListeners = (updates) => {
 export const flush = () => {
   const updated = dependableState._updated;
 
-  const subscribers = new Set();
+  const subscribers = new Map();
 
   const work = new Set();
 
@@ -105,15 +107,22 @@ export const flush = () => {
     if (subscribable._hasChanged) {
       updates.add(subscribable);
 
-      for (const subscriber of subscribable._subscribers) {
-        subscribers.add(subscriber);
+      for (const [
+        subscriber,
+        priority,
+      ] of subscribable._subscribers.entries()) {
+        subscribers.set(subscriber, priority);
       }
     }
   }
 
   dependableState._updated.clear();
 
-  for (const subscriber of subscribers) {
+  const prioritizedSubscribers = Array.from(subscribers.entries())
+    .sort((a, b) => a[1] - b[1])
+    .map(([s]) => s);
+
+  for (const subscriber of prioritizedSubscribers) {
     subscriber();
   }
 
@@ -167,7 +176,7 @@ export const observable = (initialValue, options = {}) => {
   fn.id = id;
   fn.kind = "observable";
   fn._dependents = new Set();
-  fn._subscribers = new Set();
+  fn._subscribers = new Map();
   fn._hasChanged = false;
 
   fn._registerDependent = (dependent) => {
@@ -178,8 +187,8 @@ export const observable = (initialValue, options = {}) => {
     fn._dependents.delete(dependent);
   };
 
-  fn.subscribe = (subscriber) => {
-    fn._subscribers.add(subscriber);
+  fn.subscribe = (subscriber, priority = defaultPriority) => {
+    fn._subscribers.set(subscriber, priority);
   };
 
   fn.unsubscribe = (subscriber) => {
@@ -226,7 +235,6 @@ export const track = (cb) => {
  */
 export const computed = (cb, options = {}) => {
   const { id, isEqual = Object.is } = options;
-  const subscribers = new Set();
   let value = null;
   let prevValue = null;
   let active = false;
@@ -252,7 +260,7 @@ export const computed = (cb, options = {}) => {
   fn.kind = "computed";
   fn._dependents = new Set();
   fn._dependencies = new Set();
-  fn._subscribers = new Set();
+  fn._subscribers = new Map();
   fn._hasChanged = false;
 
   fn._update = () => {
@@ -314,8 +322,8 @@ export const computed = (cb, options = {}) => {
     updateActivation();
   };
 
-  fn.subscribe = (subscriber) => {
-    fn._subscribers.add(subscriber);
+  fn.subscribe = (subscriber, priority = defaultPriority) => {
+    fn._subscribers.set(subscriber, priority);
     updateActivation();
   };
 

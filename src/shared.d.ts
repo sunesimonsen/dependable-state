@@ -29,8 +29,11 @@ export interface Subscribable {
    * Add the given subscriber to this subscribable.
    *
    * @param subscriber the subscriber that should be added
+   * @param priority the priority of this subscriber; lower numbers takes precedence.
+   *
+   * Defaults to zero.
    */
-  subscribe(subscriber: Subscriber): void;
+  subscribe(subscriber: Subscriber, priority?: number): void;
   /**
    * Remove the given subscriber to this subscribable.
    *
