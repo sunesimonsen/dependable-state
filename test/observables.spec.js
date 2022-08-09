@@ -48,6 +48,36 @@ describe("observable", () => {
       });
     });
 
+    describe("when given a priority", () => {
+      it("lower numbers takes precedence", () => {
+        const v = observable("foo");
+
+        const priority0Spy = sinon.spy();
+        const priority10Spy = sinon.spy();
+        const priority100Spy = sinon.spy();
+
+        v.subscribe(priority100Spy, 100);
+        v.subscribe(priority0Spy);
+        v.subscribe(priority10Spy, 10);
+
+        v("bar");
+
+        flush();
+
+        expect(v(), "to equal", "bar");
+
+        expect(
+          [priority0Spy, priority10Spy, priority100Spy],
+          "to have calls satisfying",
+          () => {
+            priority0Spy();
+            priority10Spy();
+            priority100Spy();
+          }
+        );
+      });
+    });
+
     describe("when the subscribe makes a new update", () => {
       it("is excuted in the same batch", () => {
         const foo = observable("foo");
