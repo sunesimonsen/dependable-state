@@ -196,7 +196,7 @@ export const observable = (initialValue, options = {}) => {
     } else {
       prevValue = value;
       value = args[0];
-      fn._hasChanged = !isEqual(value, prevValue);
+      fn._hasChanged = !fn._isEqual(value, prevValue);
 
       if (fn._hasChanged) {
         registerUpdate(fn);
@@ -206,6 +206,7 @@ export const observable = (initialValue, options = {}) => {
 
   fn.id = id;
   fn.kind = "observable";
+  fn._isEqual = isEqual;
   fn._dependents = new Set();
   fn._subscribers = new Map();
   fn._hasChanged = false;
@@ -295,7 +296,6 @@ export const computed = (cb, options = {}) => {
 
   fn.id = id;
   fn.kind = "computed";
-  fn._isEqual = isEqual;
   fn._dependents = new Set();
   fn._dependencies = new Set();
   fn._subscribers = new Map();
@@ -313,7 +313,7 @@ export const computed = (cb, options = {}) => {
     if (!active) {
       prevValue = value;
     }
-    fn._hasChanged = !fn._isEqual(value, prevValue);
+    fn._hasChanged = !isEqual(value, prevValue);
 
     const unsubscribed = new Set();
     for (const dependency of previousDependencies) {
