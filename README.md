@@ -21,7 +21,7 @@ Observables and computeds for reactive state management
 npm install --save @dependable/state
 
 # yarn
-npm add @dependable/state
+yarn add @dependable/state
 ```
 
 ## Usage
