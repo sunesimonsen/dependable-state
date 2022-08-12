@@ -3,6 +3,7 @@ const dependableState = (globalThis.__dependable =
 dependableState._updated = new Set();
 dependableState._references = new Map();
 dependableState._listeners = new Set();
+dependableState._initial = new Map();
 
 const defaultPriority = 0;
 
@@ -40,6 +41,17 @@ export const subscribables = () => {
   }
 
   return subscribables;
+};
+
+/**
+ * Register an observable that will be used when creating other observables with
+ * the same id.
+ *
+ * @template T
+ * @param {import('./shared').Observable<T>} observable the observable to register.
+ */
+export const registerInitial = (observable) => {
+  dependableState._initial.set(observable.id, observable);
 };
 
 const registerSubscribable = (fn) => {
@@ -154,8 +166,21 @@ export const observable = (initialValue, options = {}) => {
   const { id, isEqual = Object.is } = options;
 
   if (id && dependableState._references.has(id)) {
-    let cached = dependableState._references.get(id).deref();
+    const cached = dependableState._references.get(id).deref();
     if (cached) return cached;
+  }
+
+  if (id && dependableState._initial.has(id)) {
+    const restored = dependableState._initial.get(id);
+    if (restored) {
+      // override isEqual as it might not have been set
+      // and restoring observables will be initialized without it.
+      restored._isEqual = isEqual;
+
+      // has been restored
+      dependableState._initial.delete(id);
+      return restored;
+    }
   }
 
   let value = initialValue;
@@ -244,12 +269,7 @@ export const computed = (cb, options = {}) => {
 
   if (id && dependableState._references.has(id)) {
     let cached = dependableState._references.get(id).deref();
-    if (cached) {
-      // override isEqual as it might not have been set
-      // and restoring observables will be initialized without it.
-      cached._isEqual = isEqual;
-      return cached;
-    }
+    if (cached) return cached;
   }
 
   let value = null;
