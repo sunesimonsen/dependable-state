@@ -165,11 +165,6 @@ const registerUpdate = (fn) => {
 export const observable = (initialValue, options = {}) => {
   const { id, isEqual = Object.is } = options;
 
-  if (id && dependableState._references.has(id)) {
-    const cached = dependableState._references.get(id).deref();
-    if (cached) return cached;
-  }
-
   if (id && dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
     if (restored) {
@@ -181,6 +176,11 @@ export const observable = (initialValue, options = {}) => {
       dependableState._initial.delete(id);
       return restored;
     }
+  }
+
+  if (id && dependableState._references.has(id)) {
+    const cached = dependableState._references.get(id).deref();
+    if (cached) return cached;
   }
 
   let value = initialValue;
