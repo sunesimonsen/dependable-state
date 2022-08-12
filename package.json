@@ -8,8 +8,17 @@
     ".": "./src/state.js"
   },
   "types": "./types/state.d.ts",
-  "files": ["dist", "src", "types"],
-  "keywords": ["dependable", "observable", "computed", "state"],
+  "files": [
+    "dist",
+    "src",
+    "types"
+  ],
+  "keywords": [
+    "dependable",
+    "observable",
+    "computed",
+    "state"
+  ],
   "scripts": {
     "test": "mocha",
     "format": "prettier --write '**/*.js'",
@@ -50,6 +59,7 @@
     "typedoc": "^0.22.17",
     "typescript": "^4.7.3",
     "unexpected": "^13.0.0",
+    "unexpected-dependable": "^1.1.0",
     "unexpected-sinon": "^11.1.0"
   }
 }

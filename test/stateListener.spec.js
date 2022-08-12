@@ -1,6 +1,6 @@
 import unexpected from "unexpected";
 import unexpectedSinon from "unexpected-sinon";
-import unexpectedDependable from "./unexpected-dependable.js";
+import unexpectedDependable from "unexpected-dependable";
 import sinon from "sinon";
 import { FakePromise } from "fake-promise";
 import {

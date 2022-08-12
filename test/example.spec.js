@@ -1,6 +1,6 @@
 import { observable, computed, flush } from "../src/state.js";
 import unexpected from "unexpected";
-import unexpectedDependable from "./unexpected-dependable.js";
+import unexpectedDependable from "unexpected-dependable";
 
 const expect = unexpected.clone().use(unexpectedDependable);
 
