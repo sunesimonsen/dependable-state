@@ -244,7 +244,12 @@ export const computed = (cb, options = {}) => {
 
   if (id && dependableState._references.has(id)) {
     let cached = dependableState._references.get(id).deref();
-    if (cached) return cached;
+    if (cached) {
+      // override isEqual as it might not have been set
+      // and restoring observables will be initialized without it.
+      cached._isEqual = isEqual;
+      return cached;
+    }
   }
 
   let value = null;
@@ -270,6 +275,7 @@ export const computed = (cb, options = {}) => {
 
   fn.id = id;
   fn.kind = "computed";
+  fn._isEqual = isEqual;
   fn._dependents = new Set();
   fn._dependencies = new Set();
   fn._subscribers = new Map();
@@ -287,7 +293,7 @@ export const computed = (cb, options = {}) => {
     if (!active) {
       prevValue = value;
     }
-    fn._hasChanged = !isEqual(value, prevValue);
+    fn._hasChanged = !fn._isEqual(value, prevValue);
 
     const unsubscribed = new Set();
     for (const dependency of previousDependencies) {
