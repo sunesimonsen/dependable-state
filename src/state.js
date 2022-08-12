@@ -42,7 +42,7 @@ export const subscribables = () => {
   return subscribables;
 };
 
-const registerActive = (fn) => {
+const registerSubscribable = (fn) => {
   if (fn.id) {
     dependableState._references.set(fn.id, new WeakRef(fn));
   }
@@ -195,7 +195,7 @@ export const observable = (initialValue, options = {}) => {
     fn._subscribers.delete(subscriber);
   };
 
-  registerActive(fn);
+  registerSubscribable(fn);
 
   return fn;
 };
@@ -332,7 +332,7 @@ export const computed = (cb, options = {}) => {
     updateActivation();
   };
 
-  registerActive(fn);
+  registerSubscribable(fn);
 
   return fn;
 };
