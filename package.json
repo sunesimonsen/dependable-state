@@ -8,17 +8,8 @@
     ".": "./src/state.js"
   },
   "types": "./types/state.d.ts",
-  "files": [
-    "dist",
-    "src",
-    "types"
-  ],
-  "keywords": [
-    "dependable",
-    "observable",
-    "computed",
-    "state"
-  ],
+  "files": ["dist", "src", "types"],
+  "keywords": ["dependable", "observable", "computed", "state"],
   "scripts": {
     "test": "mocha",
     "format": "prettier --write '**/*.js'",
@@ -28,7 +19,7 @@
     "coverage": "c8 -r lcov -r text npm test",
     "api-docs": "npm run types && typedoc --out api-docs --hideLegend --hideGenerator src/shared.d.ts src/state.js",
     "publish-docs": "npm run api-docs && surge api-docs dependable-state-api.surge.sh",
-    "prepublishOnly": "yarn build"
+    "prepublishOnly": "npm run build"
   },
   "author": "Sune Simonsen",
   "license": "MIT",
