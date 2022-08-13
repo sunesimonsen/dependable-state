@@ -159,19 +159,15 @@ const registerUpdate = (fn) => {
  *
  * @template T
  * @param {T} initialValue Initial value
- * @param {import('./shared').SubscribableOptions<T>} options Subscribable options
+ * @param {import('./shared').SubscribableOptions} options Subscribable options
  * @returns {import('./shared').Observable<T>} Observable
  */
 export const observable = (initialValue, options = {}) => {
-  const { id, isEqual = Object.is } = options;
+  const { id } = options;
 
   if (id && dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
     if (restored) {
-      // override isEqual as it might not have been set
-      // and restoring observables will be initialized without it.
-      restored._isEqual = isEqual;
-
       // has been restored
       dependableState._initial.delete(id);
       return restored;
@@ -196,17 +192,13 @@ export const observable = (initialValue, options = {}) => {
     } else {
       prevValue = value;
       value = args[0];
-      fn._hasChanged = !fn._isEqual(value, prevValue);
-
-      if (fn._hasChanged) {
-        registerUpdate(fn);
-      }
+      fn._hasChanged = true;
+      registerUpdate(fn);
     }
   };
 
   fn.id = id;
   fn.kind = "observable";
-  fn._isEqual = isEqual;
   fn._dependents = new Set();
   fn._subscribers = new Map();
   fn._hasChanged = false;
@@ -262,7 +254,7 @@ export const track = (cb) => {
  *
  * @template T
  * @param {() => T} cb Function that produces the computed result
- * @param {import('./shared').SubscribableOptions<T>} options Subscribable options
+ * @param {import('./shared').ComputedOptions<T>} options Subscribable options
  * @returns {import('./shared').Computed<T>} Computed
  */
 export const computed = (cb, options = {}) => {
