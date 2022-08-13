@@ -137,56 +137,38 @@ aboveLimit.subscribe(() => {
 });
 ```
 
-## Overriding equality comparison
+## Overriding equality comparison for computeds
 
-By default observables and computeds compare values for equality using the `Object.is` function. The library uses this function to figure out if an observable or computed has changed is value and therefore should notify isn't subscribers.
+By default computeds compare values for equality using the `Object.is` function. The library uses this function to figure out if a computed has changed is value and therefore should notify it's subscribers.
 
 In certain situations it is useful to override this comparison function, that can be done the following way.
 
 ```js
-const name = observable("Jane Doe", {
-  isEqual: (a, b) => a.toLowerCase() === b.toLowerCase(),
+const numbers = observable([1, 3, 0, 2]);
+
+const arrayIsEquals = (a, b) => {
+  if (a.length !== b.length) return false;
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+
+  return true;
+};
+
+const sortedNumbers = computed(() => numbers().slice().sort(), {
+  isEqual: arrayIsEquals,
 });
 
-name.subscribe(() => {
-  console.log(name());
+numbers.subscribe(() => {
+  console.log(numbers());
 });
 
 // This doesn't trigger the subscription
-name("JANE DOE");
+numbers([1, 2, 3, 0]);
 
 // but this does
-name("John Doe");
-```
-
-You can do the same for computeds like this.
-
-```js
-const stuff = observable([]);
-const stuffById = computed(() => {
-  const result = new Map();
-  for (const thing of stuff) {
-    result.set(thing.id, thing);
-  }
-  return result;
-});
-
-const stuffWithId = (id) =>
-  computed(() => stuff().find((item) => item.id === id), {
-    isEqual: (a, b) => a.id === b.id,
-  });
-
-const foo = stuffWithId("foo");
-
-foo.subscribe(() => {
-  console.log(foo);
-});
-
-// trigger an update to foo
-stuff([{ id: "foo" }]);
-
-// doesn't trigger another update to foo
-stuff([{ id: "foo" }, { id: "bar" }]);
+numbers([1, 2, 3, 0, 4]);
 ```
 
 ## Testing

@@ -91,19 +91,27 @@ export type Equality<T> = {
  *
  * @template T the type subscribable value.
  */
-export type SubscribableOptions<T> = {
+export type SubscribableOptions = {
   /**
    * The id of the subscribable.
    *
    * Used for debugging and development tools.
    */
   id?: string;
+};
+
+/**
+ * Options for a subscribable.
+ *
+ * @template T the type subscribable value.
+ */
+export type ComputedOptions<T> = Subscribable & {
 
   /**
    * A function deciding if the value of the subscribable has changed.
    */
   isEqual?: Equality<T>;
-};
+}
 
 /**
  * The set of active subscribables.

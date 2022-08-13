@@ -144,7 +144,7 @@ describe("computed", () => {
 
         flush();
 
-        // Shouldn't trigger any updates
+        // Should only change the output
         a(4);
         b(2);
 
@@ -189,6 +189,11 @@ describe("computed", () => {
             productSpy();
 
             // When a=4 b=2
+            sumSpy();
+            productSpy();
+            outputSpy();
+
+            // When a=4 b=2 again
             sumSpy();
             productSpy();
             outputSpy();
