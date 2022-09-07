@@ -194,7 +194,7 @@ sum.subscribe(() => {
 
 numbers([1, 2, 3]);
 
-// subscribes will be called in the next tick, but we can force the update through
+// subscribers will be called in the next tick, but we can force the update through
 flush();
 
 expect(sum(), "to equal", 6);
