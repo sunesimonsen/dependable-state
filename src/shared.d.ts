@@ -88,8 +88,6 @@ export type Equality<T> = {
 
 /**
  * Options for a subscribable.
- *
- * @template T the type subscribable value.
  */
 export type SubscribableOptions = {
   /**
@@ -103,15 +101,14 @@ export type SubscribableOptions = {
 /**
  * Options for a subscribable.
  *
- * @template T the type subscribable value.
+ * @template T the type computed value.
  */
 export type ComputedOptions<T> = Subscribable & {
-
   /**
    * A function deciding if the value of the subscribable has changed.
    */
   isEqual?: Equality<T>;
-}
+};
 
 /**
  * The set of active subscribables.
