@@ -1,9 +1,13 @@
-const dependableState = (globalThis.__dependable =
-  globalThis.__dependable || {});
-dependableState._updated = new Set();
-dependableState._references = new Map();
-dependableState._listeners = new Set();
-dependableState._initial = new Map();
+const dependableState = globalThis.__dependable || {};
+
+if (!globalThis.__dependable) {
+  globalThis.__dependable = dependableState;
+
+  dependableState._updated = new Set();
+  dependableState._references = new Map();
+  dependableState._listeners = new Set();
+  dependableState._initial = new Map();
+}
 
 const defaultPriority = 0;
 
