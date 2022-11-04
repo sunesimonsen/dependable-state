@@ -6,7 +6,6 @@
 Observables and computeds for reactive state management
 
 - Easy learning curve
-- Tiny, less than 1kb
 - Zero dependencies
 - Allows multiple versions of the library in the page
 - Batches updates
