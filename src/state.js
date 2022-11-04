@@ -172,7 +172,7 @@ const registerUpdate = (fn) => {
 export const observable = (initialValue, options = {}) => {
   const { id = nextId() } = options;
 
-  if (id && dependableState._initial.has(id)) {
+  if (dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
     if (restored) {
       // has been restored
@@ -181,7 +181,7 @@ export const observable = (initialValue, options = {}) => {
     }
   }
 
-  if (id && dependableState._references.has(id)) {
+  if (dependableState._references.has(id)) {
     const cached = dependableState._references.get(id).deref();
     if (cached) return cached;
   }
@@ -267,7 +267,7 @@ export const track = (cb) => {
 export const computed = (cb, options = {}) => {
   const { id = nextId(), isEqual = Object.is } = options;
 
-  if (id && dependableState._references.has(id)) {
+  if (dependableState._references.has(id)) {
     let cached = dependableState._references.get(id).deref();
     if (cached) return cached;
   }
