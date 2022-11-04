@@ -3,6 +3,7 @@ const dependableState = globalThis.__dependable || {};
 if (!globalThis.__dependable) {
   globalThis.__dependable = dependableState;
 
+  dependableState._nextId = 0;
   dependableState._updated = new Set();
   dependableState._references = new Map();
   dependableState._listeners = new Set();
@@ -10,6 +11,8 @@ if (!globalThis.__dependable) {
 }
 
 const defaultPriority = 0;
+
+const nextId = () => "$" + dependableState._nextId++;
 
 /**
  * Add a state listener.
@@ -167,7 +170,7 @@ const registerUpdate = (fn) => {
  * @returns {import('./shared').Observable<T>} Observable
  */
 export const observable = (initialValue, options = {}) => {
-  const { id } = options;
+  const { id = nextId() } = options;
 
   if (id && dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
@@ -262,7 +265,7 @@ export const track = (cb) => {
  * @returns {import('./shared').Computed<T>} Computed
  */
 export const computed = (cb, options = {}) => {
-  const { id, isEqual = Object.is } = options;
+  const { id = nextId(), isEqual = Object.is } = options;
 
   if (id && dependableState._references.has(id)) {
     let cached = dependableState._references.get(id).deref();
