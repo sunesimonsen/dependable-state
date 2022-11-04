@@ -1,7 +1,9 @@
 const dependableState = globalThis.__dependable || {};
 
-if (!globalThis.__dependable) {
-  globalThis.__dependable = dependableState;
+const g = globalThis;
+
+if (!g.__dependable) {
+  g.__dependable = dependableState;
 
   dependableState._nextId = 0;
   dependableState._updated = new Set();
@@ -69,18 +71,14 @@ const registerSubscribable = (fn) => {
   notifyStateListeners(new Set([fn]));
 };
 
-const clearFlushHook = () => {
-  if (typeof window !== "undefined") {
-    window.cancelAnimationFrame(flush);
-  } else {
-    clearTimeout(flush);
-  }
-};
+const clearFlushHook = () => (g.cancelAnimationFrame || clearTimeout)(flush);
 
 const addFlushHook = () => {
   clearFlushHook();
-  if (typeof window !== "undefined") {
-    window.requestAnimationFrame(flush);
+
+  const raf = g.requestAnimationFrame;
+  if (raf) {
+    raf(flush);
   } else {
     setTimeout(flush, 0);
   }
@@ -174,11 +172,9 @@ export const observable = (initialValue, options = {}) => {
 
   if (dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
-    if (restored) {
-      // has been restored
-      dependableState._initial.delete(id);
-      return restored;
-    }
+    // has been restored
+    dependableState._initial.delete(id);
+    return restored;
   }
 
   if (dependableState._references.has(id)) {
