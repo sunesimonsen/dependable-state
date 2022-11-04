@@ -16,7 +16,6 @@ const minifyPlugins = [
           $_dependents: "f",
           $_registerDependent: "g",
           $_unregisterDependent: "h",
-          $_nextId: "i",
         },
       },
     },

@@ -5,7 +5,7 @@ const g = globalThis;
 if (!g.__dependable) {
   g.__dependable = dependableState;
 
-  dependableState._nextId = 0;
+  dependableState.nextId = 0;
   dependableState._updated = new Set();
   dependableState._references = new Map();
   dependableState._listeners = new Set();
@@ -14,7 +14,7 @@ if (!g.__dependable) {
 
 const defaultPriority = 0;
 
-const nextId = () => "$" + dependableState._nextId++;
+const nextId = () => "$" + dependableState.nextId++;
 
 /**
  * Add a state listener.
