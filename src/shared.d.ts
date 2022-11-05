@@ -99,6 +99,20 @@ export type SubscribableOptions = {
 };
 
 /**
+ * Options for an observable.
+ */
+export type ObservableOptions = Subscribable & {
+  /**
+   * A boolean specifying if the observable can be saved and restored.
+   *
+   * It is required that the value is JSON serializable for it to be restorable.
+   *
+   * @defaultValue true
+   */
+  restore?: boolean;
+};
+
+/**
  * Options for a subscribable.
  *
  * @template T the type computed value.
