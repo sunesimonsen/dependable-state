@@ -202,6 +202,7 @@ export const observable = (initialValue, options = {}) => {
 
   fn.id = id;
   fn.kind = "observable";
+  fn.restore = restore;
   fn._dependents = new Set();
   fn._subscribers = new Map();
   fn._hasChanged = false;
