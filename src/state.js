@@ -164,20 +164,20 @@ const registerUpdate = (fn) => {
  *
  * @template T
  * @param {T} initialValue Initial value
- * @param {import('./shared').SubscribableOptions} options Subscribable options
+ * @param {import('./shared').ObservableOptions} options Subscribable options
  * @returns {import('./shared').Observable<T>} Observable
  */
 export const observable = (initialValue, options = {}) => {
-  const { id = nextId() } = options;
+  const { id = nextId(), restore = true } = options;
 
-  if (dependableState._initial.has(id)) {
+  if (restore && dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
     // has been restored
     dependableState._initial.delete(id);
     return restored;
   }
 
-  if (dependableState._references.has(id)) {
+  if (restore && dependableState._references.has(id)) {
     const cached = dependableState._references.get(id).deref();
     if (cached) return cached;
   }
