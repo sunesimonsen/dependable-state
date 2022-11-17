@@ -20,7 +20,7 @@ export interface Subscribable {
   /**
    * The id of the subscribable.
    */
-  id: string;
+  id: ?string;
   /**
    * The kind of subscribable.
    */
@@ -99,25 +99,11 @@ export type SubscribableOptions = {
 };
 
 /**
- * Options for an observable.
- */
-export type ObservableOptions = Subscribable & {
-  /**
-   * A boolean specifying if the observable can be saved and restored.
-   *
-   * It is required that the value is JSON serializable for it to be restorable.
-   *
-   * @defaultValue true
-   */
-  restore?: boolean;
-};
-
-/**
  * Options for a subscribable.
  *
  * @template T the type computed value.
  */
-export type ComputedOptions<T> = Subscribable & {
+export type ComputedOptions<T> = SubscribableOptions & {
   /**
    * A function deciding if the value of the subscribable has changed.
    */

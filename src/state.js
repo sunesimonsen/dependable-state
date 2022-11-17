@@ -5,7 +5,6 @@ const g = globalThis;
 if (!g.__dependable) {
   g.__dependable = dependableState;
 
-  dependableState.nextId = 0;
   dependableState._updated = new Set();
   dependableState._references = new Map();
   dependableState._listeners = new Set();
@@ -13,8 +12,6 @@ if (!g.__dependable) {
 }
 
 const defaultPriority = 0;
-
-const nextId = () => "$" + dependableState.nextId++;
 
 /**
  * Add a state listener.
@@ -164,20 +161,20 @@ const registerUpdate = (fn) => {
  *
  * @template T
  * @param {T} initialValue Initial value
- * @param {import('./shared').ObservableOptions} options Subscribable options
+ * @param {import('./shared').SubscribableOptions} options Subscribable options
  * @returns {import('./shared').Observable<T>} Observable
  */
 export const observable = (initialValue, options = {}) => {
-  const { id = nextId(), restore = true } = options;
+  const { id } = options;
 
-  if (restore && dependableState._initial.has(id)) {
+  if (id && dependableState._initial.has(id)) {
     const restored = dependableState._initial.get(id);
     // has been restored
     dependableState._initial.delete(id);
     return restored;
   }
 
-  if (restore && dependableState._references.has(id)) {
+  if (id && dependableState._references.has(id)) {
     const cached = dependableState._references.get(id).deref();
     if (cached) return cached;
   }
@@ -202,7 +199,6 @@ export const observable = (initialValue, options = {}) => {
 
   fn.id = id;
   fn.kind = "observable";
-  fn.restore = restore;
   fn._dependents = new Set();
   fn._subscribers = new Map();
   fn._hasChanged = false;
@@ -262,9 +258,9 @@ export const track = (cb) => {
  * @returns {import('./shared').Computed<T>} Computed
  */
 export const computed = (cb, options = {}) => {
-  const { id = nextId(), isEqual = Object.is } = options;
+  const { id, isEqual = Object.is } = options;
 
-  if (dependableState._references.has(id)) {
+  if (id && dependableState._references.has(id)) {
     let cached = dependableState._references.get(id).deref();
     if (cached) return cached;
   }
