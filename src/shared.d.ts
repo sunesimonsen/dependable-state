@@ -20,7 +20,7 @@ export interface Subscribable {
   /**
    * The id of the subscribable.
    */
-  id: ?string;
+  id?: string;
   /**
    * The kind of subscribable.
    */
