@@ -32,24 +32,6 @@ describe("stateListener", () => {
     });
   });
 
-  describe("when initializing an observable with an existing id", () => {
-    it("returns the previous observable", () => {
-      const anotherFirstName = observable("Jane", { id: "firstName" });
-
-      expect(firstName, "to be", anotherFirstName);
-    });
-  });
-
-  describe("when initializing an computed with an existing id", () => {
-    it("returns the previous computed", () => {
-      const anotherFullName = computed(() => `${lastName()}, ${firstName()}`, {
-        id: "fullName",
-      });
-
-      expect(fullName, "to be", anotherFullName);
-    });
-  });
-
   describe("subscribables", () => {
     it("returns the current subscribables", () => {
       expect(

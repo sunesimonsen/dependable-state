@@ -174,11 +174,6 @@ export const observable = (initialValue, options = {}) => {
     return restored;
   }
 
-  if (id && dependableState._references.has(id)) {
-    const cached = dependableState._references.get(id).deref();
-    if (cached) return cached;
-  }
-
   let value = initialValue;
   let prevValue = initialValue;
 
@@ -259,11 +254,6 @@ export const track = (cb) => {
  */
 export const computed = (cb, options = {}) => {
   const { id, isEqual = Object.is } = options;
-
-  if (id && dependableState._references.has(id)) {
-    let cached = dependableState._references.get(id).deref();
-    if (cached) return cached;
-  }
 
   let value = null;
   let prevValue = null;
