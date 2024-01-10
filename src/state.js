@@ -75,8 +75,10 @@ const addFlushHook = () => {
 
   const raf = g.requestAnimationFrame;
   if (raf) {
+    g.cancelAnimationFrame(flush);
     raf(flush);
   } else {
+    clearTimeout(flush);
     setTimeout(flush, 0);
   }
 };
