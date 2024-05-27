@@ -75,8 +75,10 @@ const addFlushHook = () => {
 
   const raf = g.requestAnimationFrame;
   if (raf) {
+    g.cancelAnimationFrame(flush);
     raf(flush);
   } else {
+    clearTimeout(flush);
     setTimeout(flush, 0);
   }
 };
@@ -314,22 +316,22 @@ export const computed = (cb, options = {}) => {
   };
 
   const updateActivation = () => {
+    const updatedActivation =
+      fn._subscribers.size > 0 || fn._dependents.size > 0;
+
     if (active) {
-      if (fn._dependents.size === 0 && fn._subscribers.size === 0) {
+      if (!updatedActivation) {
         for (const dependency of fn._dependencies) {
           dependency._unregisterDependent(fn);
         }
 
         fn._dependencies = new Set();
-
-        active = false;
       }
-    } else if (fn._dependents.size > 0) {
-      active = true;
     } else if (fn._subscribers.size > 0) {
       fn._update();
-      active = true;
     }
+
+    active = updatedActivation;
   };
 
   fn._registerDependent = (dependent) => {
