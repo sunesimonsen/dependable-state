@@ -1,6 +1,6 @@
 {
   "name": "@dependable/state",
-  "version": "0.20.0",
+  "version": "0.21.0",
   "exports": "./src/state.js",
   "types": "./types/state.d.ts"
 }
