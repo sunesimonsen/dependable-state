@@ -3,9 +3,11 @@
   "name": "@dependable/state",
   "version": "0.21.0",
   "description": "Observables and computeds for reactive state management",
-  "module": "./src/state.js",
+  "module": "./dist/dependable-state.esm.js",
   "exports": {
-    ".": "./src/state.js"
+    "types": "./types/state.d.ts",
+    "import": "./dist/dependable-state.esm.js",
+    "module": "./dist/dependable-state.esm.js"
   },
   "types": "./types/state.d.ts",
   "files": [

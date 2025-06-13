@@ -16,7 +16,7 @@ const defaultPriority = 0;
 /**
  * Add a state listener.
  *
- * @param {import('./shared').StateListener} listener the listner to be added.
+ * @param {import('./shared').StateListener} listener the listener to be added.
  */
 export const addStateListener = (listener) => {
   dependableState._listeners.add(listener);
@@ -25,7 +25,7 @@ export const addStateListener = (listener) => {
 /**
  * Remove a state listener.
  *
- * @param {import('./shared').StateListener} listener the listner to be removed.
+ * @param {import('./shared').StateListener} listener the listener to be removed.
  */
 export const removeStateListener = (listener) => {
   dependableState._listeners.delete(listener);
